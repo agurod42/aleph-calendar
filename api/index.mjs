@@ -132,10 +132,13 @@ app.get('/calendar.ics', async (req, res) => {
       return res.status(500).send('Internal Server Error');
     }
 
+    const calendarName = 'Aleph Events Calendar';
+    const calendarContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Your Organization//Your Product//EN\nX-WR-CALNAME:${calendarName}\n${value.replace('BEGIN:VEVENT', 'BEGIN:VEVENT')}\nEND:VCALENDAR`;
+
     console.log('iCal events created successfully');
     res.setHeader('Content-Disposition', 'attachment;filename=calendar.ics');
     res.setHeader('Content-Type', 'text/calendar');
-    res.send(value);
+    res.send(calendarContent);
   } catch (error) {
     console.error('Error in /calendar.ics endpoint:', error);
     res.status(500).send('Internal Server Error');
