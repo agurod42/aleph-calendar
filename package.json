@@ -1,0 +1,20 @@
+{
+  "name": "aleph-calendar",
+  "version": "1.0.0",
+  "main": "api/index.mjs",
+  "dependencies": {
+    "axios": "^1.7.3",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ics": "^3.7.6",
+    "mailgun-js": "^0.22.0",
+    "serverless-http": "^3.2.0"
+  },
+  "scripts": {
+    "start": "node api/index.mjs"
+  },
+  "devDependencies": {
+    "vercel": "^35.1.0"
+  }
+}
