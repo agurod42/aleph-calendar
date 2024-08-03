@@ -96,15 +96,6 @@ const sendNotificationEmail = (changes) => {
   });
 };
 
-// Function to escape special characters in descriptions
-const escapeDescription = (description) => {
-  return description
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\n/g, '\\n');
-};
-
 app.get('/calendar.ics', async (req, res) => {
   try {
     console.log('Received request for /calendar.ics');
@@ -119,7 +110,7 @@ app.get('/calendar.ics', async (req, res) => {
       start: event.start_time.split(/[-T:.Z]/).map(Number),
       end: event.end_time.split(/[-T:.Z]/).map(Number),
       title: event.title,
-      description: `Event Detail: https://aleph.sola.day/event/detail/${event.id}\n\n${escapeDescription(event.content)}`,
+      description: `🔗 https://aleph.sola.day/event/detail/${event.id}\n\n${event.content}`,
       location: event.location,
       status: 'CONFIRMED',
     }));
