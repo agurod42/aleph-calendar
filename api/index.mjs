@@ -23,6 +23,7 @@ let previousEvents = [];
 const graphqlQuery = {
   query: `query MyQuery {
     events (where: {display: {_neq: "private"}, start_time: {_gte: "2024-02-03T18:25:19.533Z"}, _and: {start_time: {_lte: "2025-02-01T18:25:19.533Z"}}, group_id: {_eq: 3452}, status: {_in: ["open", "new", "normal"]}} order_by: {start_time: asc}, limit: 1000, offset: 0) {
+      id
       title
       start_time
       end_time
@@ -44,6 +45,7 @@ const fetchEvents = async () => {
   console.log('Events fetched successfully:', response.data.data.events);
 
   return response.data.data.events.map(event => ({
+    id: event.id,
     title: event.title,
     start_time: event.start_time,
     end_time: event.end_time,
@@ -94,6 +96,15 @@ const sendNotificationEmail = (changes) => {
   });
 };
 
+// Function to escape special characters in descriptions
+const escapeDescription = (description) => {
+  return description
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n');
+};
+
 app.get('/calendar.ics', async (req, res) => {
   try {
     console.log('Received request for /calendar.ics');
@@ -108,7 +119,7 @@ app.get('/calendar.ics', async (req, res) => {
       start: event.start_time.split(/[-T:.Z]/).map(Number),
       end: event.end_time.split(/[-T:.Z]/).map(Number),
       title: event.title,
-      description: event.content,
+      description: `Event Detail: https://aleph.sola.day/event/detail/${event.id}\n\n${escapeDescription(event.content)}`,
       location: event.location,
       status: 'CONFIRMED',
     }));
