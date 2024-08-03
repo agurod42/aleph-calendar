@@ -22,7 +22,7 @@ let previousEvents = [];
 
 const graphqlQuery = {
   query: `query MyQuery {
-    events (where: {display: {_neq: "private"}, start_time: {_gte: "2024-02-03T18:25:19.533Z"}, _and: {start_time: {_lte: "2025-02-01T18:25:19.533Z"}}, group_id: {_eq: 3452}, status: {_in: ["open", "new", "normal"]}} order_by: {start_time: asc}, limit: 1000, offset: 0) {
+    events (where: {display: {_neq: "private"}, start_time: {_gte: "2024-06-01T00:00:00.000Z"}, _and: {start_time: {_lte: "2025-01-01T00:00:00.000Z"}}, group_id: {_eq: 3452}, status: {_in: ["open", "new", "normal"]}} order_by: {start_time: asc}, limit: 2000, offset: 0) {
       id
       title
       start_time
