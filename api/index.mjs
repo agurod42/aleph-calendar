@@ -4,6 +4,7 @@ import { createEvents } from 'ics';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import mailgun from 'mailgun-js';
+import { marked } from 'marked';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -96,6 +97,21 @@ const sendNotificationEmail = (changes) => {
   });
 };
 
+// Function to escape special characters in descriptions
+const escapeDescription = (description) => {
+  return description
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n');
+};
+
+// Function to convert markdown to plain text and escape characters
+const formatDescription = (markdownContent) => {
+  const plainText = marked.parse(markdownContent, { headerIds: false, mangle: false }).replace(/<[^>]+>/g, '');
+  return escapeDescription(plainText);
+};
+
 app.get('/calendar.ics', async (req, res) => {
   try {
     console.log('Received request for /calendar.ics');
@@ -110,7 +126,7 @@ app.get('/calendar.ics', async (req, res) => {
       start: event.start_time.split(/[-T:.Z]/).map(Number),
       end: event.end_time.split(/[-T:.Z]/).map(Number),
       title: event.title,
-      description: `🔗 https://aleph.sola.day/event/detail/${event.id}\n\n${event.content}`,
+      description: `🔗 https://aleph.sola.day/event/detail/${event.id}\n\n${formatDescription(event.content)}`,
       location: event.location,
       status: 'CONFIRMED',
     }));
@@ -123,10 +139,17 @@ app.get('/calendar.ics', async (req, res) => {
       return res.status(500).send('Internal Server Error');
     }
 
+    // Ensure each line ends with CRLF
+    const formattedValue = value.split('\n').map(line => line.trim()).join('\r\n');
+
+    // Add calendar name
+    const calendarName = 'Aleph Calendar';
+    const calendarContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//agurod42//aleph-calendar//EN\r\nX-WR-CALNAME:${calendarName}\r\n${formattedValue}\r\nEND:VCALENDAR\r\n`;
+
     console.log('iCal events created successfully');
     res.setHeader('Content-Disposition', 'attachment;filename=calendar.ics');
     res.setHeader('Content-Type', 'text/calendar');
-    res.send(value);
+    res.send(calendarContent);
   } catch (error) {
     console.error('Error in /calendar.ics endpoint:', error);
     res.status(500).send('Internal Server Error');
